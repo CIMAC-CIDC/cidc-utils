@@ -8,6 +8,6 @@ from setuptools import setup
 setup(
     name="cidc_utils",
     version='0.1.0',
-    packages=['caching', 'logging', 'requests'],
+    packages=['caching', 'loghandler', 'requests'],
     python_requires='>=3'
 )
