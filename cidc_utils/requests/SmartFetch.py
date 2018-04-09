@@ -9,6 +9,19 @@ from simplejson.errors import JSONDecodeError
 
 
 def graceful_handling(code):
+    """
+    A wrapper around the requests library that removes the need to write
+    error handling behavior for every request
+
+    Arguments:
+        code {int} -- HTTP request code indicating a succesful request.
+
+    Raises:
+        RuntimeError -- [description]
+
+    Returns:
+        [type] -- [description]
+    """
     def param_wrap(func):
         @wraps(func)
         def handle_error(*args, **kwargs):
