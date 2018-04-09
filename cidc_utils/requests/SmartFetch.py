@@ -28,7 +28,9 @@ def graceful_handling(code):
             if 'token' in kwargs:
                 kwargs['headers'].update({'Authorization': 'Bearer {}'.format(kwargs['token'])})
             response = func(*args, **kwargs)
-            if not response.status_code == code:
+            success = response.status_code == code if 'code' not in kwargs \
+                else kwargs['code'] == response.status_code
+            if not success:
                 print("Request Unsuccesful:")
                 print(response.reason)
                 try:

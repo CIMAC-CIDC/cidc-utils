@@ -3,4 +3,4 @@ A simple utility package for the CIDC tools, provides convenient shortcut method
 
 ### Installation
 
-`pip install http://github.com/dfci/cidc-utils.git --process-dependency-links`
+`pip install http://github.com/dfci/cidc-utils.git#egg=cidc_utils --user`
