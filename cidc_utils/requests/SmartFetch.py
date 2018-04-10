@@ -36,6 +36,8 @@ def graceful_handling(code: int, token: str=None):
                         {'headers': {'Authorization': 'Bearer {}'.format(token)}})
             response = func(*args, **kwargs)
             if not response.status_code == code:
+                print(response.status_code)
+                print(code)
                 print("Request Unsuccesful:")
                 print(response.reason)
                 try:
@@ -70,7 +72,7 @@ class SmartFetch:
         """
         return self.do_wrap(requests.post, endpoint=endpoint, code=code, token=token, **kwargs)
 
-    def get(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+    def get(self, endpoint: str=None, code: int=200, token: str=None, **kwargs):
         """Wrapper emulating the requests.get method with custom error handling.
 
         Keyword Arguments:
@@ -83,7 +85,7 @@ class SmartFetch:
         """
         return self.do_wrap(requests.get, endpoint=endpoint, code=code, token=token, **kwargs)
 
-    def patch(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+    def patch(self, endpoint: str=None, code: int=200, token: str=None, **kwargs):
         """Wrapper emulating the requests.patch method with custom error handling.
 
         Keyword Arguments:
@@ -96,7 +98,7 @@ class SmartFetch:
         """
         return self.do_wrap(requests.patch, endpoint=endpoint, code=code, token=token, **kwargs)
 
-    def delete(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+    def delete(self, endpoint: str=None, code: int=200, token: str=None, **kwargs):
         """Wrapper emulating the requests.delete method with custom error handling.
 
         Keyword Arguments:
@@ -109,7 +111,7 @@ class SmartFetch:
         """
         return self.do_wrap(requests.delete, endpoint=endpoint, code=code, token=token, **kwargs)
 
-    def do_wrap(self, request_func, endpoint: str=None, code: int=200, token: str=None, **kwargs):
+    def do_wrap(self, request_func, endpoint: str=None, code=None, token: str=None, **kwargs):
         """
         Wraps the passed request function with the decorator.
 
