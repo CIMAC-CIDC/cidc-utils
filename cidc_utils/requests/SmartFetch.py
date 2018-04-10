@@ -28,7 +28,12 @@ def graceful_handling(code: int, token: str=None):
         @wraps(func)
         def handle_error(*args, **kwargs):
             if token:
-                kwargs['headers'].update({'Authorization': 'Bearer {}'.format(kwargs['token'])})
+                if 'headers' in kwargs:
+                    kwargs['headers'].update(
+                        {'Authorization': 'Bearer {}'.format(token)})
+                else:
+                    kwargs.update(
+                        {'headers': {'Authorization': 'Bearer {}'.format(token)}})
             response = func(*args, **kwargs)
             if not response.status_code == code:
                 print("Request Unsuccesful:")
