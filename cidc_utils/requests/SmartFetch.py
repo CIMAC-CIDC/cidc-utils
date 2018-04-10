@@ -36,7 +36,6 @@ def graceful_handling(code: int, token: str=None):
                         {'headers': {'Authorization': 'Bearer {}'.format(token)}})
             response = func(*args, **kwargs)
             if not response.status_code == code:
-                print("code: " + code + " status code: " + response.status_code)
                 print("Request Unsuccesful:")
                 print(response.reason)
                 try:
@@ -69,7 +68,7 @@ class SmartFetch:
         Returns:
             requests.Response -- HTTP Response.
         """
-        return self.do_wrap(requests.post, endpoint, code, token, **kwargs)
+        return self.do_wrap(requests.post, endpoint=endpoint, code=code, token=token, **kwargs)
 
     def get(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
         """Wrapper emulating the requests.get method with custom error handling.
@@ -82,7 +81,7 @@ class SmartFetch:
         Returns:
             requests.Response -- HTTP Response.
         """
-        return self.do_wrap(requests.get, endpoint, code, token, **kwargs)
+        return self.do_wrap(requests.get, endpoint=endpoint, code=code, token=token, **kwargs)
 
     def patch(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
         """Wrapper emulating the requests.patch method with custom error handling.
@@ -95,7 +94,7 @@ class SmartFetch:
         Returns:
             requests.Response -- HTTP Response.
         """
-        return self.do_wrap(requests.patch, endpoint, code, token, **kwargs)
+        return self.do_wrap(requests.patch, endpoint=endpoint, code=code, token=token, **kwargs)
 
     def delete(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
         """Wrapper emulating the requests.delete method with custom error handling.
@@ -108,7 +107,7 @@ class SmartFetch:
         Returns:
             requests.Response -- HTTP Response.
         """
-        return self.do_wrap(requests.delete, endpoint, code, token, **kwargs)
+        return self.do_wrap(requests.delete, endpoint=endpoint, code=code, token=token, **kwargs)
 
     def do_wrap(self, request_func, endpoint: str=None, code: int=200, token: str=None, **kwargs):
         """
