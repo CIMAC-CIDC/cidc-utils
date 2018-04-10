@@ -2,35 +2,35 @@
 """
 Class that makes interacting with APIs a little bit easier.
 """
-import requests
+
 from functools import wraps
-from urllib.error import HTTPError
+
+import requests
 from simplejson.errors import JSONDecodeError
 
 
-def graceful_handling(code):
+def graceful_handling(code: int, token: str=None):
     """
     A wrapper around the requests library that removes the need to write
     error handling behavior for every request
 
     Arguments:
         code {int} -- HTTP request code indicating a succesful request.
+        token {str} -- JWT access token.
 
     Raises:
-        RuntimeError -- [description]
+        RuntimeError -- Raises a runtime error to indicate a vital request failed.
 
     Returns:
-        [type] -- [description]
+        requests.Response -- Response object.
     """
     def param_wrap(func):
         @wraps(func)
         def handle_error(*args, **kwargs):
-            if 'token' in kwargs:
+            if token:
                 kwargs['headers'].update({'Authorization': 'Bearer {}'.format(kwargs['token'])})
             response = func(*args, **kwargs)
-            success = response.status_code == code if 'code' not in kwargs \
-                else kwargs['code'] == response.status_code
-            if not success:
+            if not response.status_code == code:
                 print("Request Unsuccesful:")
                 print(response.reason)
                 try:
@@ -38,6 +38,7 @@ def graceful_handling(code):
                 except JSONDecodeError:
                     pass
                 raise RuntimeError
+            return response
         return handle_error
     return param_wrap
 
@@ -51,22 +52,80 @@ class SmartFetch:
     def __init__(self, base_url=''):
         self.base_url = base_url
 
-    @graceful_handling(201)
-    def post(self, url='', **kwargs):
-        full_path = self.base_url + url
-        return requests.post(full_path, **kwargs)
+    def post(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+        """Wrapper emulating the requests.post method with custom error handling.
 
-    @graceful_handling(200)
-    def get(self, url='', **kwargs):
-        full_path = self.base_url + url
-        return requests.post(full_path, **kwargs)
+        Keyword Arguments:
+            endpoint {str} -- API endpoint. (default: {None})
+            code {int} -- Status code indicating success. (default: {201})
+            token {str} -- JWT access token. (default: {None})
 
-    @graceful_handling(200)
-    def patch(self, url='', **kwargs):
-        full_path = self.base_url + url
-        return requests.patch(full_path, **kwargs)
+        Returns:
+            requests.Response -- HTTP Response.
+        """
+        return self.do_wrap(requests.post, endpoint, code, token, **kwargs)
 
-    @graceful_handling(200)
-    def delete(self, url='', **kwargs):
-        full_path = self.base_url + url
-        return requests.delete(full_path, **kwargs)
+    def get(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+        """Wrapper emulating the requests.get method with custom error handling.
+
+        Keyword Arguments:
+            endpoint {str} -- API endpoint. (default: {None})
+            code {int} -- Status code indicating success. (default: {200})
+            token {str} -- JWT access token. (default: {None})
+
+        Returns:
+            requests.Response -- HTTP Response.
+        """
+        return self.do_wrap(requests.get, endpoint, code, token, **kwargs)
+
+    def patch(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+        """Wrapper emulating the requests.patch method with custom error handling.
+
+        Keyword Arguments:
+            endpoint {str} -- API endpoint. (default: {None})
+            code {int} -- Status code indicating success. (default: {200})
+            token {str} -- JWT access token. (default: {None})
+
+        Returns:
+            requests.Response -- HTTP Response.
+        """
+        return self.do_wrap(requests.patch, endpoint, code, token, **kwargs)
+
+    def delete(self, endpoint: str=None, code: int=201, token: str=None, **kwargs):
+        """Wrapper emulating the requests.delete method with custom error handling.
+
+        Keyword Arguments:
+            endpoint {str} -- API endpoint. (default: {None})
+            code {int} -- Status code indicating success. (default: {200})
+            token {str} -- JWT access token. (default: {None})
+
+        Returns:
+            requests.Response -- HTTP Response.
+        """
+        return self.do_wrap(requests.delete, endpoint, code, token, **kwargs)
+
+    def do_wrap(self, request_func, endpoint: str=None, code: int=200, token: str=None, **kwargs):
+        """
+        Wraps the passed request function with the decorator.
+
+        Arguments:
+            request_func {object} -- A requests function method.
+
+        Keyword Arguments:
+            endpoint {str} -- API endpoint. (default: {None})
+            code {int} -- Status code indicating success. (default: {200})
+            token {str} -- JWT access token. (default: {None})
+
+        Returns:
+            requests.Response -- HTTP Response.
+        """
+        url = self.base_url
+
+        if endpoint:
+            url += '/' + endpoint
+
+        @graceful_handling(code, token)
+        def wrapped_request(**kwargs):
+            return request_func(url, **kwargs)
+
+        return wrapped_request(**kwargs)
