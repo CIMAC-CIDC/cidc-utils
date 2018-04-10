@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 setup(
     name="cidc_utils",
     version='0.1.0',
-    packages=find_packages(exclude=('tests','Pipfile', 'Pipfile.lock')),
+    packages=find_packages(exclude=('tests', 'Pipfile', 'Pipfile.lock')),
     install_requires=[
         'amqp>=2.2.2',
         'kombu>=4.1.0',
