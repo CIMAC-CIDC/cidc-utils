@@ -25,8 +25,28 @@ def graceful_handling(code: int, token: str=None):
         requests.Response -- Response object.
     """
     def param_wrap(func):
+        """Wrapper around request function.
+
+        Arguments:
+            func {[type]} -- [description]
+
+        Raises:
+            RuntimeError -- [description]
+
+        Returns:
+            [type] -- [description]
+        """
         @wraps(func)
         def handle_error(*args, **kwargs):
+            """
+            Specifies error handling for HTTP requests.
+
+            Raises:
+                RuntimeError -- [description]
+
+            Returns:
+                [type] -- [description]
+            """
             if token:
                 if 'headers' in kwargs:
                     kwargs['headers'].update(
@@ -36,8 +56,6 @@ def graceful_handling(code: int, token: str=None):
                         {'headers': {'Authorization': 'Bearer {}'.format(token)}})
             response = func(*args, **kwargs)
             if not response.status_code == code:
-                print(response.status_code)
-                print(code)
                 print("Request Unsuccesful:")
                 print(response.reason)
                 try:
