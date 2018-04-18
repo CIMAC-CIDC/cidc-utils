@@ -1,4 +1,4 @@
 """
 Module for custom logging.
 """
-from RabbitMQHandler import RabbitMQHandler
+from cidc_utils.loghandler.RabbitMQHandler import RabbitMQHandler
