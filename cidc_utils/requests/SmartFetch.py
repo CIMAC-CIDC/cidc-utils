@@ -147,7 +147,7 @@ class SmartFetch:
         url = self.base_url
 
         if endpoint:
-            url += endpoint + '/'
+            url += '/' + endpoint
 
         @graceful_handling(code, token)
         def wrapped_request(**kwargs):
