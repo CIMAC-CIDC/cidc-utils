@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""A custom class to send logs to rabbitMQ2
 """
-
+A custom class to send logs to rabbitMQ2
+"""
 import logging
 import socket
 import kombu
@@ -21,13 +21,14 @@ class RabbitMQHandler(logging.Handler):
 
     def emit(self, record):
         """
-        Puts the record on a logging queue
+        Puts the record on a logging queue.
         Arguments:
             record {[type]} -- [description]
         """
         self.queue.put(record.msg)
 
     def close(self):
-        """[summary]
+        """
+        Closes the queue.
         """
         self.queue.close()
