@@ -2,6 +2,7 @@
 """
 A custom class to send formatted logs to Stackdriver
 """
+import logging
 from pythonjsonlogger import jsonlogger
 
 
@@ -31,3 +32,19 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
             raise ValueError(
                 'Improperly formatted log. Please remember to add a category definition')
         log_record['category'] = message_dict['category']
+
+
+def formatter_factory(fmt, datefmt):
+    """
+    Factory function for producing a custom JSON formatter to log
+    JSON logs in Stackdriver. For if we implement config from file.
+    
+    Arguments:
+        fmt {[type]} -- [description]
+        datefmt {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
+    default = logging.Formatter(fmt, datefmt)
+    return StackdriverJsonFormatter(default)
