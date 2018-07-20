@@ -28,9 +28,8 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
 
     def add_fields(self, log_record, record, message_dict):
         super(StackdriverJsonFormatter, self).add_fields(log_record, record, message_dict)
-        if not message_dict['category']:
-            raise ValueError(
-                'Improperly formatted log. Please remember to add a category definition')
+        if 'category' not in message_dict:
+            message_dict['category'] = 'INFO'
         log_record['category'] = message_dict['category']
 
 
@@ -38,11 +37,11 @@ def formatter_factory(fmt, datefmt):
     """
     Factory function for producing a custom JSON formatter to log
     JSON logs in Stackdriver. For if we implement config from file.
-    
+
     Arguments:
         fmt {[type]} -- [description]
         datefmt {[type]} -- [description]
-    
+
     Returns:
         [type] -- [description]
     """

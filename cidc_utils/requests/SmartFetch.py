@@ -2,7 +2,6 @@
 """
 Class that makes interacting with APIs a little bit easier.
 """
-
 from functools import wraps
 
 import requests
