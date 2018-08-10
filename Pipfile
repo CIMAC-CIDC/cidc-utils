@@ -9,6 +9,7 @@ requests = "*"
 simplejson = "*"
 attrs = "*"
 python-json-logger = "*"
+sendgrid = "*"
 
 [dev-packages]
 
