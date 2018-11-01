@@ -73,7 +73,7 @@ def graceful_handling(code: int, token: str = None, _etag: str = None):
                     print(response.json())
                 except JSONDecodeError:
                     pass
-                raise RuntimeError
+                raise RuntimeError(response.status_code)
             return response
 
         return handle_error
