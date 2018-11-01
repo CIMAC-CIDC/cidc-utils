@@ -10,6 +10,8 @@ simplejson = "*"
 attrs = "*"
 python-json-logger = "*"
 sendgrid = "*"
+bson = "*"
+black = "*"
 
 [dev-packages]
 
