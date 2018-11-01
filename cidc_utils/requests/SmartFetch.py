@@ -60,10 +60,11 @@ def graceful_handling(code: int, token: str = None, _etag: str = None):
                         {"headers": {"Authorization": "Bearer {}".format(token)}}
                     )
 
-                if "_etag" in kwargs:
-                    kwargs["headers"].update(
-                        {"If-Match": kwargs["_etag"]}
-                    )
+            if _etag:
+                if "headers" in kwargs:
+                    kwargs["headers"].update({"If-Match": _etag})
+                else:
+                    kwargs.update({"headers": {"If-Match": _etag}})
             response = func(*args, **kwargs)
             if not response.status_code == code:
                 print("Request Unsuccesful:")
@@ -120,13 +121,7 @@ class SmartFetch:
             requests.get, endpoint=endpoint, code=code, token=token, **kwargs
         )
 
-    def patch(
-        self,
-        endpoint: str = None,
-        code: int = 200,
-        token: str = None,
-        **kwargs
-    ):
+    def patch(self, endpoint: str = None, code: int = 200, token: str = None, **kwargs):
         """Wrapper emulating the requests.patch method with custom error handling.
 
         Keyword Arguments:
@@ -142,11 +137,7 @@ class SmartFetch:
         else:
             kwargs.update({"headers": {"X-HTTP-Method-Override": "PATCH"}})
         return self.do_wrap(
-            requests.post,
-            endpoint=endpoint,
-            code=code,
-            token=token,
-            **kwargs
+            requests.post, endpoint=endpoint, code=code, token=token, **kwargs
         )
 
     def delete(
