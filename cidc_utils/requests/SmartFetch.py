@@ -12,7 +12,7 @@ from simplejson.errors import JSONDecodeError
 def graceful_handling(code: int, token: str = None, _etag: str = None):
     """
     A wrapper around the requests library that removes the need to write
-    error handling behavior for every request
+    error handling behavior for every request.
 
     Arguments:
         code {int} -- HTTP request code indicating a succesful request.

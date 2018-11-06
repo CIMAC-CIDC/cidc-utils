@@ -9,7 +9,7 @@ from sendgrid.helpers.mail import Email, Content, Mail, Personalization
 from pythonjsonlogger import jsonlogger
 
 
-def add_recipients(mail_object: Mail, recipients: List[str]):
+def add_recipients(mail_object: Mail, recipients: List[str]) -> None:
     """
     Takes a sendgrid mail object and adds a list of e-mails as blind-copy recipients.
 
@@ -35,13 +35,12 @@ def send_mail(
     Arguments:
         subject {str} -- Subject line of email.
         message_text {str} -- Text of email.
-        to_emails {[str]} -- Destination email. The first element in the list will be
+        to_emails {List[str]} -- Destination email. The first element in the list will be
         considered the primary recipient.
 
     Returns:
-        bool -- [description]
+        bool -- True if succesful.
     """
-    print('sendmail triggered')
     sg = sendgrid.SendGridAPIClient(sendgrid_api_key)
     from_email = Email(send_from_email)
     to_email = Email(to_emails[0])
@@ -64,8 +63,8 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
     tagging their alerts.
 
     Arguments:
-        jsonlogger {[type]} -- [description]
-        object {[type]} -- [description]
+        jsonlogger {jsonlogger.JsonFormatter} -- [description]
+        object {object} -- [description]
     """
 
     _sendgrid_api_key = None
