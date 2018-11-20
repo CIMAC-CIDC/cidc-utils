@@ -14,7 +14,8 @@ setup(
         'kombu>=4.1.0',
         'requests>=2.18.4',
         'simplejson>=3.13.2',
-        'sendgrid>=5.4.1'
+        'sendgrid>=5.4.1',
+        'bson==0.5.6'
     ],
     python_requires='>=3'
 )
