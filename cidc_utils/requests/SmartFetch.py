@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Class that makes interacting with APIs a little bit easier.
 """
@@ -136,6 +135,25 @@ class SmartFetch:
             kwargs["headers"].update({"X-HTTP-Method-Override": "PATCH"})
         else:
             kwargs.update({"headers": {"X-HTTP-Method-Override": "PATCH"}})
+        return self.do_wrap(
+            requests.post, endpoint=endpoint, code=code, token=token, **kwargs
+        )
+
+    def put(self, endpoint: str = None, code: int = 201, token: str = None, **kwargs):
+        """Wrapper emulating the requests.put method with custom error handling.
+
+        Keyword Arguments:
+            endpoint {str} -- API endpoint. (default: {None})
+            code {int} -- Status code indicating success. (default: {201})
+            token {str} -- JWT access token. (default: {None})
+
+        Returns:
+            requests.Response -- HTTP Response.
+        """
+        if "headers" in kwargs:
+            kwargs["headers"].update({"X-HTTP-Method-Override": "PUT"})
+        else:
+            kwargs.update({"headers": {"X-HTTP-Method-Override": "PUT"}})
         return self.do_wrap(
             requests.post, endpoint=endpoint, code=code, token=token, **kwargs
         )

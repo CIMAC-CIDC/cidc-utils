@@ -12,6 +12,9 @@ python-json-logger = "*"
 sendgrid = "*"
 bson = "*"
 black = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-html = "*"
 
 [dev-packages]
 pylint = "*"
