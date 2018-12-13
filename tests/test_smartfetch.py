@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Unit tests for the SmartFetch class/wrappers
 """
@@ -26,3 +25,10 @@ class TestSmartFetch(unittest.TestCase):
             mock_requests.return_value.status_code = 200
             s = SmartFetch('')
             s.post(code=200)
+
+def test_smartfetch_fails():
+    with patch('requests.post') as mock_requests:
+        mock_requests.return_value.status_code = 200
+        s = SmartFetch('')
+        value = s.post(code=200)
+        assert value.status_code == 200
