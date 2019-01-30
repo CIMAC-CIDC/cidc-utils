@@ -18,7 +18,8 @@ def add_recipients(mail_object: Mail, recipients: List[str]) -> None:
         recipients {List[str]} -- String list of e-mails to be sent to.
     """
     personalization = Personalization()
-    [personalization.add_bcc(Email(address)) for address in recipients]
+    for address in recipients:
+        personalization.add_bcc(Email(address))
     mail_object.add_personalization(personalization)
 
 
@@ -41,16 +42,17 @@ def send_mail(
     Returns:
         bool -- True if succesful.
     """
-    sg = sendgrid.SendGridAPIClient(sendgrid_api_key)
+    sg_client = sendgrid.SendGridAPIClient(sendgrid_api_key)
     from_email = Email(send_from_email)
     to_email = Email(to_emails[0])
+    # This line seems redundant. Look into it.
     subject = subject
     content = Content("text/plain", message_text)
     mail = Mail(from_email, subject, to_email, content)
 
     # Add all other e-mail addresses as BCC.
     add_recipients(mail, to_emails[1:])
-    response = sg.client.mail.send.post(request_body=mail.get())
+    response = sg_client.client.mail.send.post(request_body=mail.get())
 
     return response.status_code == 202
 
@@ -79,9 +81,9 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
         Function to configure sendgrind credentials
 
         Arguments:
-            api_key {[type]} -- [description]
-            from_email {[type]} -- [description]
-            to_emails {[str]} -- List of e-mail addresses to send the mail to.
+            api_key {str} -- Access key for api.
+            from_email {str} -- Email of sender
+            to_emails {List[str]} -- List of e-mail addresses to send the mail to.
         """
         self._send_from_email = from_email
         self._sendgrid_api_key = api_key
@@ -109,3 +111,40 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
         if 'category' not in message_dict:
             message_dict['category'] = 'INFO'
         log_record['category'] = message_dict['category']
+
+
+def add_to_logger(logger_instance):
+    """
+    Function that will attach all functionality to the local logging instance. The logger instance
+    is global. It is not necessary to use the returned object.
+
+    Arguments:
+        logger_instance {[type]} -- the result of "import logging"
+
+    Returns:
+        {[type]} -- configured logger instance.
+    """
+    logger = logger_instance.getLogger()
+    logger.setLevel("INFO")
+    loghandler = logger_instance.StreamHandler()
+    formatter = StackdriverJsonFormatter()
+    loghandler.setFormatter(formatter)
+    logger.addHandler(loghandler)
+    return logger
+
+
+def handle_log_format(logging_function, message: str, category: str):
+    """
+    Helper function to remove the annoyance of being unable to call string formatting methods
+    on an argument passed to a logging function.
+
+    Arguments:
+        logging_function {[type]} -- Function reference such as logging.info
+        message {str} -- Error message
+        category {str} -- Error category
+    """
+    formatted_message = message
+    logging_function({
+        "message": formatted_message,
+        "category": category
+    })
