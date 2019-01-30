@@ -66,13 +66,16 @@ def graceful_handling(code: int, token: str = None, _etag: str = None):
                     kwargs.update({"headers": {"If-Match": _etag}})
             response = func(*args, **kwargs)
             if not response.status_code == code:
-                print("Request Unsuccesful:")
-                print(response.reason)
                 try:
                     print(response.json())
                 except JSONDecodeError:
                     pass
-                raise RuntimeError(response.status_code)
+                error_report = ''
+                if response.status_code:
+                    error_report += str(response.status_code) + ": "
+                if response.reason:
+                    error_report += response.reason
+                raise RuntimeError(error_report)
             return response
 
         return handle_error
