@@ -1,2 +1,2 @@
 #!/usr/bin/env python3
-from cidc_utils.requests.SmartFetch import SmartFetch
+from cidc_utils.requests.smartfetch import SmartFetch

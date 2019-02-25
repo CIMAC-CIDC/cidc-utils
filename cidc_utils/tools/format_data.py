@@ -1,11 +1,8 @@
-#!/usr/bin/env python3
 """
 A set of tools for common CIDC tasks.
 """
 import json
-from os import environ as env
 import attr
-from cidc_utils.requests import SmartFetch
 
 
 @attr.s
@@ -90,12 +87,3 @@ def create_record(input_path, wdl_location, non_static_inputs, assay_name):
         non_static_inputs=non_static_inputs
     )
     print(assay)
-
-
-def fake_run_data(fake_data, eve_token):
-    fetcher = SmartFetch(
-        'http://' + env.get("INGESTION_API_SERVICE_HOST") + ':' + env.get(
-            "INGESTION_API_SERVICE_PORT")
-        )
-    response = fetcher.post(endpoint='data', token=eve_token, json=fake_data)
-

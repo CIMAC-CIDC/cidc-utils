@@ -93,7 +93,7 @@ class SmartFetch:
     def __init__(self, base_url=""):
         self.base_url = base_url
 
-    def post(self, endpoint: str = None, code: int = 200, token: str = None, **kwargs):
+    def post(self, endpoint: str = None, code: int = 201, token: str = None, **kwargs):
         """Wrapper emulating the requests.post method with custom error handling.
 
         Keyword Arguments:
