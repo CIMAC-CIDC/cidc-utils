@@ -3,4 +3,4 @@
 Caching module
 """
 
-from cidc_utils.caching.CredentialCache import CredentialCache
+from cidc_utils.caching.credential_cache import CredentialCache

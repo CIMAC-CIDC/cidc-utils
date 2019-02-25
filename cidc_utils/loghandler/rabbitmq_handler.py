@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
-A custom class to send logs to rabbitMQ2
+A custom class to send logs to rabbitMQ
 """
+__author__ = "Lloyd McCarthy"
+__license__ = "MIT"
+
 import logging
-import socket
 import kombu
 
 
@@ -13,11 +15,9 @@ class RabbitMQHandler(logging.Handler):
     """
     def __init__(self, uri=None, queue='logstash'):
         logging.Handler.__init__(self)
-        connection = kombu.Connection(uri)
-        try:
-            self.queue = connection.SimpleQueue(queue)
-        except AttributeError:
-            raise RuntimeError("Handler was unable to connect to MQ")
+        connection = kombu.Connection(uri, connect_timeout=1)
+        connection.connect()
+        self.queue = connection.SimpleQueue(queue)
 
     def emit(self, record):
         """
@@ -31,4 +31,7 @@ class RabbitMQHandler(logging.Handler):
         """
         Closes the queue.
         """
-        self.queue.close()
+        try:
+            self.queue.close()
+        except AttributeError:
+            return None

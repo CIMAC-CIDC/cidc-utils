@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 A custom class to send formatted logs to Stackdriver
 """
@@ -90,6 +89,15 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
         self._to_emails = to_emails
 
     def process_log_record(self, log_record):
+        """
+        Determines if a warning requires sending an email.
+
+        Arguments:
+            log_record {[type]} -- [description]
+
+        Returns:
+            [type] -- [description]
+        """
         log_record['severity'] = log_record['levelname']
 
         # If the log is tagged as "e-mail" send it out.
