@@ -18,7 +18,7 @@ def add_recipients(mail_object: Mail, recipients: List[str]) -> None:
     """
     personalization = Personalization()
     for address in recipients:
-        personalization.add_bcc(Email(address))
+        personalization.add_bcc(Email(email=address))
     mail_object.add_personalization(personalization)
 
 
@@ -43,14 +43,9 @@ def send_mail(
     """
     sg_client = sendgrid.SendGridAPIClient(sendgrid_api_key)
     from_email = Email(send_from_email)
-    to_email = Email(to_emails[0])
-    # This line seems redundant. Look into it.
-    subject = subject
+    to_email = Email(email=to_emails[0])
     content = Content("text/plain", message_text)
     mail = Mail(from_email, subject, to_email, content)
-
-    # Add all other e-mail addresses as BCC.
-    add_recipients(mail, to_emails[1:])
     response = sg_client.client.mail.send.post(request_body=mail.get())
 
     return response.status_code == 202
@@ -141,7 +136,7 @@ def add_to_logger(logger_instance):
     return logger
 
 
-def handle_log_format(logging_function, message: str, category: str):
+def log_formatted(logging_function, message: str, category: str):
     """
     Helper function to remove the annoyance of being unable to call string formatting methods
     on an argument passed to a logging function.
