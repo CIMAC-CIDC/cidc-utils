@@ -2,7 +2,10 @@
 Defines caching before for user preferences
 """
 
+import jwt
+import time
 from cachetools import TTLCache
+from typing import Optional
 
 
 class CredentialCache(TTLCache):
@@ -24,34 +27,18 @@ class CredentialCache(TTLCache):
         """
         self['access_token'] = key
 
-    def get_key(self) -> str:
+    def get_key(self) -> Optional[str]:
         """
         Retreive key from cache.
         """
-        if 'access_token' in self:
+        if 'access_token' in self and self['access_token']:
+            decode = jwt.decode(self['access_token'], verify=False)
+            exp = decode['exp']
+
+            if time.time() > exp:
+                print("Your token has expired!")
+                self["access_token"] = None
+
             return self['access_token']
 
-        return
-
-    def get_jobs(self):
-        """
-        Returns job objects
-        Returns:
-            [type] -- [description]
-        """
-        if 'jobs' not in self:
-            return None
-
-        return self['jobs']
-
-    def add_job_to_cache(self, job_id):
-        """
-        Adds a job ID to cache for easy retreival and status querying.
-
-        Arguments:
-            job_id {[type]} -- [description]
-        """
-        if 'jobs' not in self:
-            self['jobs'] = []
-
-        self['jobs'].append(job_id)
+        return None
