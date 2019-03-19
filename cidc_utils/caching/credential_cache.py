@@ -42,4 +42,4 @@ class CredentialCache(TTLCache):
                 return self["access_token"]
             except jwt.exceptions.DecodeError:
                 print("This token is not a valid JWT!")
-                return None
+                return self["access_token"]
