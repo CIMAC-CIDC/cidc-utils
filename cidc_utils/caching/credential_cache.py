@@ -37,9 +37,14 @@ class CredentialCache(TTLCache):
                 decode = jwt.decode(self["access_token"], verify=False)
                 exp = decode["exp"]
                 if time.time() > exp:
-                    print("Your token has expired!")
+                    print(
+                        "Your token has expired! Please log in to the web portal and get a new token."
+                    )
                     self["access_token"] = None
                 return self["access_token"]
             except jwt.exceptions.DecodeError:
                 print("This token is not a valid JWT!")
-                return self["access_token"]
+                if self["access_token"]:
+                    return self["access_token"]
+                else:
+                    return None
