@@ -4,7 +4,16 @@ A custom class to send formatted logs to Stackdriver
 import logging
 from typing import List
 import sendgrid
-from sendgrid.helpers.mail import Email, Content, Mail, Personalization
+from sendgrid.helpers.mail import (
+    Email,
+    To,
+    From,
+    Content,
+    Mail,
+    Personalization,
+    SandBoxMode,
+    MailSettings,
+)
 from pythonjsonlogger import jsonlogger
 
 
@@ -23,11 +32,12 @@ def add_recipients(mail_object: Mail, recipients: List[str]) -> None:
 
 
 def send_mail(
-        subject: str,
-        message_text: str,
-        to_emails: List[str],
-        send_from_email: str,
-        sendgrid_api_key: str
+    subject: str,
+    message_text: str,
+    to_emails: List[str],
+    send_from_email: str,
+    sendgrid_api_key: str,
+    sandbox_mode: bool = False,
 ) -> bool:
     """
     Send an email via Sendgrid. Configure API_KEY via constants.
@@ -37,18 +47,30 @@ def send_mail(
         message_text {str} -- Text of email.
         to_emails {List[str]} -- Destination email. The first element in the list will be
         considered the primary recipient.
+        sandbox_mode {bool} -- If True, only do a dry run without actually sending the email.
 
     Returns:
         bool -- True if succesful.
     """
     sg_client = sendgrid.SendGridAPIClient(sendgrid_api_key)
-    from_email = Email(send_from_email)
-    to_email = Email(email=to_emails[0])
+    from_email = From(send_from_email)
+    to_email = To(to_emails)
     content = Content("text/plain", message_text)
-    mail = Mail(from_email, subject, to_email, content)
-    response = sg_client.client.mail.send.post(request_body=mail.get())
+    mail = Mail(from_email, to_email, subject, content)
 
-    return response.status_code == 202
+    mail_settings = MailSettings()
+    mail_settings.sandbox_mode = SandBoxMode(sandbox_mode)
+    mail.mail_settings = mail_settings
+
+    response = sg_client.send(mail)
+
+    # If this is a dry run, we get back 200 (OK) if the inputs are valid
+    validated = sandbox_mode and response.status_code == 200
+
+    # If this is a real run, we get back 202 (Accepted) if the message sent
+    sent_succesfully = not sandbox_mode and response.status_code == 202
+
+    return validated or sent_succesfully
 
 
 class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
@@ -67,10 +89,12 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
     _send_from_email = None
     _to_emails = None
 
-    def __init__(self, fmt="%(levelname) %(message)", style='%', *args, **kwargs):
+    def __init__(self, fmt="%(levelname) %(message)", style="%", *args, **kwargs):
         jsonlogger.JsonFormatter.__init__(self, fmt=fmt, *args, **kwargs)
 
-    def configure_sendgrid(self, api_key: str, from_email: str, to_emails: List[str]) -> None:
+    def configure_sendgrid(
+        self, api_key: str, from_email: str, to_emails: List[str]
+    ) -> None:
         """
         Function to configure sendgrind credentials
 
@@ -93,27 +117,32 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
         Returns:
             [type] -- [description]
         """
-        log_record['severity'] = log_record['levelname']
+        log_record["severity"] = log_record["levelname"]
 
         # If the log is tagged as "e-mail" send it out.
-        if 'category' in log_record and 'EMAIL' in log_record['category'] and (
-                self._send_from_email and self._sendgrid_api_key and self._to_emails):
+        if (
+            "category" in log_record
+            and "EMAIL" in log_record["category"]
+            and (self._send_from_email and self._sendgrid_api_key and self._to_emails)
+        ):
             send_mail(
-                'STACKDRIVER_NOTIFICATION',
-                log_record['message'],
+                "STACKDRIVER_NOTIFICATION",
+                log_record["message"],
                 self._to_emails,
                 self._send_from_email,
-                self._sendgrid_api_key
+                self._sendgrid_api_key,
             )
 
-        del log_record['levelname']
+        del log_record["levelname"]
         return super(StackdriverJsonFormatter, self).process_log_record(log_record)
 
     def add_fields(self, log_record, record, message_dict):
-        super(StackdriverJsonFormatter, self).add_fields(log_record, record, message_dict)
-        if 'category' not in message_dict:
-            message_dict['category'] = 'INFO'
-        log_record['category'] = message_dict['category']
+        super(StackdriverJsonFormatter, self).add_fields(
+            log_record, record, message_dict
+        )
+        if "category" not in message_dict:
+            message_dict["category"] = "INFO"
+        log_record["category"] = message_dict["category"]
 
 
 def add_to_logger(logger_instance):
@@ -147,7 +176,4 @@ def log_formatted(logging_function, message: str, category: str):
         category {str} -- Error category
     """
     formatted_message = message
-    logging_function({
-        "message": formatted_message,
-        "category": category
-    })
+    logging_function({"message": formatted_message, "category": category})
